@@ -1,3 +1,8 @@
+# This is the implementation for the CD-NODE_gamma that predict Beta distributions.
+# This implementaion is the scource code for the paper entitled 
+# "Dual-Constrained Dynamical Neural ODEs for Ambiguity-aware Continuous Emotion Prediction" at Interpseech2024
+# Programmed by: Jingyao Wu (jingyao.wu@unsw.edu.au) March 2024
+
 import os
 import argparse
 import numpy as np
@@ -29,7 +34,7 @@ parser.add_argument('--scale2',type=float,default = 0.15)
 parser.add_argument('--seed',type=int,default = 0)
 parser.add_argument('--dim',type=int,default = 0)
 parser.add_argument('--savedir',type=str,default = None)
-parser.add_argument('--delay',type=int,default = 50)
+parser.add_argument('--delay',type=int,default = 50) #50 for 2 seconds 100 for 4 seconds (you can play around)
 parser.add_argument('--size',type=int,default = 9) #training set size
 parser.add_argument('--fold',type=int,default = 1) #k fold
 
@@ -221,26 +226,9 @@ features = ['mfcc', 'eGemaps', 'boaw']
 
 
 
-#filepath = "/home/561/jw3506/CNODE/CD-NODEs/varying_train_size/size_"+ str(args.size) + "_"+str(args.fold) + "/"
-#savepath = "/home/561/jw3506/CNODE/emo_out_good_new_alpha/"
-
-filepath = "/Users/jingyaowu/Library/CloudStorage/OneDrive-UNSW/0UNSW_PhD/ICASSP2023/CD-NODEs_new/CD-NODEs/"
-#savepath = "/Users/jingyaowu/Library/CloudStorage/OneDrive-UNSW/0UNSW_PhD/ICASSP2023/CD-NODEs_new/emo_out_good2/"
-modelpath = '/Users/jingyaowu/Library/CloudStorage/OneDrive-UNSW/0UNSW_PhD/ICASSP2023/CD-NODEs_new/emo_out_good/.pth'
-
-filepath2 = "/Users/jingyaowu/Library/CloudStorage/OneDrive-UNSW/0UNSW_PhD/Interspeech2023/CODE/"
-
-beta_path = "/Users/jingyaowu/Library/CloudStorage/OneDrive-UNSW/0UNSW_PhD/Interspeech2023/CODE/beta_estimate_jen/"
-savepath = "/Users/jingyaowu/Library/CloudStorage/OneDrive-UNSW/0UNSW_PhD/ICASSP2023/CD-NODEs_new/CD-NODEs/examples/interspeech2023/good_new/results/"
-savepath = beta_path
-model = "/Users/jingyaowu/Library/CloudStorage/OneDrive-UNSW/0UNSW_PhD/ICASSP2023/CD-NODEs_new/CD-NODEs/examples/interspeech2023/good_new/results/MSEloss2/"
-
-#savepath = "/Users/jingyaowu/Library/CloudStorage/OneDrive-UNSW/0UNSW_PhD/ICASSP2023/CD-NODEs_new/CD-NODEs/examples/interspeech2023/final_results/SD/"
-#savepath = '/Users/jingyaowu/Library/CloudStorage/OneDrive-UNSW/0UNSW_PhD/ICASSP2023/CD-NODEs_new/CD-NODEs/examples/interspeech2023/good_new/MAP_results/SD/'
-# modelpath = 'C:/Users/EET/OneDrive - UNSW/0UNSW_PhD/ICASSP2023/CD-NODEs_new/emo_out_good/.pth'
-# modelpath2 = 'C:/Users/EET/OneDrive - UNSW/0UNSW_PhD/ICASSP2023/CD-NODEs_new/emo_out_good/pri.pth'
-# modelpath3 = 'C:/Users/EET/OneDrive - UNSW/0UNSW_PhD/ICASSP2023/CD-NODEs_new/emo_out_good/rec.pth'
-savepath = "/Users/jingyaowu/Library/CloudStorage/OneDrive-UNSW/0UNSW_PhD/Interspeech 2024/MAP_estimation/cdnode_results/new/"
+filepath = "/Users/your_file_path_with_features_and_labels/"
+savepath = "/Users/your_path_to_save_results/"
+model = "/Users/your_path_to_save_model/"
 
 import os
 # Check whether the specified path exists or not
@@ -271,52 +259,26 @@ if __name__ == '__main__':
 
     ################# lOAD DATA ############################################################################################
     
-    if args.delay == 50:
-        print("Loading festures..")
-        data_all = io.loadmat(filepath + 'boaw_2s_cut.mat')
-        X_train = data_all['data_train']
-        X_test = data_all['data_dev']
-    
-        ################# lOAD DATA ############################################################################################
-       # print("Loading labels...")
-       # data_all = io.loadmat(filepath + 'goldstand_2s_cut.mat')
-       # Y_train = data_all['gt_train']
-       # Y_test = data_all['gt_dev']
-        
-        print("Loading sigma...")
-        data_all = io.loadmat(beta_path + 'MLE_beta_ar_mu_sd_2s.mat')
-        #data_all = io.loadmat(beta_path + 'MAP_beta_estimate_mu_sd_good.mat')
-        
-        Y_train = data_all['ar_train_sd']
-        Y_test = data_all['ar_test_sd']
-        
-        print("Loading mu...")
-        data_all = io.loadmat(beta_path + 'MLE_beta_ar_mu_sd_2s.mat')
-        #data_all = io.loadmat(beta_path + 'MAP_beta_estimate_mu_sd_good.mat')
-        
-        Y_train2 = data_all['ar_train_mu']
-        Y_test2 = data_all['ar_test_mu']
-    else:
-        data_all = io.loadmat(filepath + 'boaw_4s_cut.mat')
-        X_train = data_all['data_train']
-        X_test = data_all['data_dev']
-    
-        ################# lOAD DATA ############################################################################################
-        # print("Loading labels...")
-        # data_all = io.loadmat(filepath + 'goldstand_4s_cut.mat')
-        # Y_train = data_all['gt_train']
-        # Y_test = data_all['gt_dev']
-        
-        # data_all = io.loadmat(beta_path + 'MLE_beta_ar_mu_sd_4s.mat')
-        # #Y_train = data_all['gt_train']
-        # #Y_test = data_all['gt_dev']
-        # Y_train = data_all['ar_train_mu']
-        # Y_test = data_all['ar_test_mu']
-        
-        print("Loading sigma...")
-        data_all = io.loadmat(beta_path + 'MLE_beta_ar_mu_sd_4s_new.mat')
-        Y_train = data_all['ar_train_sd']
-        Y_test = data_all['ar_test_sd']
+
+     print("Loading festures..")
+     #data_all = io.loadmat(filepath + 'boaw_2s_cut.mat')
+     data_all = io.loadmat(filepath + 'Your_feature_data.mat')
+     X_train = data_all['data_train']
+     X_test = data_all['data_dev']
+ 
+     ################# lOAD DATA ############################################################################################
+     print("Loading sigma...")
+     data_all = io.loadmat(filepath + 'Your_SD_labels.mat')
+
+     Y_train = data_all['ar_train_sd']
+     Y_test = data_all['ar_test_sd']
+     
+     print("Loading mu...")
+     data_all = io.loadmat(filepath + 'Your_Mean_labels.mat')
+     
+     Y_train2 = data_all['ar_train_mu']
+     Y_test2 = data_all['ar_test_mu']
+
 
     Y_train = Y_train[:,dim]
     Y_test = Y_test[:,dim]
@@ -346,29 +308,15 @@ if __name__ == '__main__':
 
     ############## Forming pytorch dataset ###############
     X_train = torch.from_numpy(X_train).float() # train data
-    Y_train = torch.from_numpy(Y_train).float() # train labels
-    
+    Y_train = torch.from_numpy(Y_train).float() # train labels SD
     Y_train2 = torch.from_numpy(Y_train2).float() # train labels mu
-    #reduce training set size
-    # reduced_size = 7501*7
-    # X_train = X_train[0:reduced_size,:]
-    # Y_train = Y_train[0:reduced_size]
+
 
 
     X_test = torch.from_numpy(X_test).float()  # train data
-    Y_test = torch.from_numpy(Y_test).float()  # train labels
-
+    Y_test = torch.from_numpy(Y_test).float()  # train labels SD
     Y_test2 = torch.from_numpy(Y_test2).float()  # train labels mu
     
-    # train_dataset = TensorDataset(X_train,Y_train)
-    # test_dataset = TensorDataset(X_test, Y_test)
-    # train_loader = DataLoader(dataset=train_dataset,
-    #                           batch_size=batch_size,
-    #                           shuffle=False)
-    # test_loader = DataLoader(dataset=test_dataset,
-    #                           batch_size=ts_size*9,
-    #                           shuffle=False)
-    # batches_per_epoch = len(train_loader)
     
     
     train_dataset = TensorDataset(X_train,Y_train,Y_train2)
@@ -393,25 +341,14 @@ if __name__ == '__main__':
     
     func = LatentODEfunc(latent_dim + out_dim, nhidden, out_dim).to(device)
     func2 = LatentODEfunc(latent_dim + out_dim, nhidden, out_dim).to(device)
-    # func.apply(init_weights)
-    # func.load_state_dict(torch.load(modelpath)) #load the saved initilizations
-    # random_seed = 1
-    # torch.manual_seed(random_seed)
-    # torch.nn.init.xavier_normal_(func.fc1.weight)
-    # torch.nn.init.xavier_normal_(func.fc2.weight)
-    # torch.nn.init.xavier_normal_(func.fc3.weight)
     
     
     
    
     # func.eval()
-    #params = (list(rec.parameters()) + list(func.parameters()) + list(pri.parameters()))
     params = (list(rec.parameters()) + list(func.parameters()) + list(pri.parameters()) + list(rec2.parameters()) + list(func2.parameters()) + list(pri2.parameters())   )
-    #params2 = (list(rec2.parameters()) + list(func2.parameters()) + list(pri2.parameters()))
     optimizer = optim.Adam(params, lr=args.lr)
-    #optimizer2 = optim.Adam(params, lr=args.lr)
     scheduler = optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=0.9)
-    #scheduler2 = optim.lr_scheduler.ExponentialLR(optimizer=optimizer2, gamma=0.9)
 
 #save initialization 
 # Initialize model
@@ -477,24 +414,23 @@ if __name__ == '__main__':
             mu = mu.float().to(device)  # train labels
             print(inputs.shape)
             optimizer.zero_grad()
-            #optimizer2.zero_grad()
+
             ############################ Start trainiing the model #######
-           # s0 = labels_new[0,:,:].float().to(device)
-          #  C0 = 1
-            #y0_new_sd = torch.atanh(2 * s0 / C0 - 1)
+
             
             
             ts = torch.linspace(0, (seq-1)*0.04, steps=seq)
-            #y0_new = pri.forward(inputs[0,:,:]).float().to(device) #predict all initial values of all the chunks
-            y0_new = labels_new[0,:,:].float().to(device)
+            #You can uncomment this line below if you want to predict your initial values
+            #y0_new = pri.forward(inputs[0,:,:]).float().to(device) #predict all initial values of all the chunks 
+            y0_new = labels_new[0,:,:].float().to(device) #initial values are selected from training set
             y0_new2 = mu_new[0,:,:].float().to(device)
-            #y0_new = torch.atanh(2 * y0_new - 1) 
-            pred_train = odeint(func, y0_new, ts, inputs, args.rtol,args.atol)
+
+            pred_train = odeint(func, y0_new, ts, inputs, args.rtol,args.atol) #Solve ODE functions to get predicted SD&mu
             pred_train_mu = odeint(func2, y0_new2, ts, inputs, args.rtol,args.atol)
 
-            #pred_train = 0.5 * torch.tanh(pred_train) + 0.5 # add constraint
-            pred_train = args.scale2 *torch.sigmoid(pred_train)
-            gmma = 0.75
+
+            pred_train = args.scale2 *torch.sigmoid(pred_train) # add constraint to the range
+            gmma = 0.75 
             pred_train_mu = gmma*torch.sigmoid(pred_train_mu)
             ################## plot #####################
             pred_train = torch.reshape(torch.t(pred_train[:, :, 0]), (-1,))
@@ -509,17 +445,16 @@ if __name__ == '__main__':
                 
             print(pred_train.shape)
             print(labels.shape)
-            eta = 15
+            eta = 15 #weights on the loss in Equation 6
             loss = eta*CCCloss(pred_train[:batch_size],labels)+CCCloss(pred_train_mu[:batch_size],mu)
             
-            #loss_func = nn.MSELoss()
-            #loss = loss_func(pred_train[:batch_size],labels)
+
             loss_save[i] = loss.detach().cpu().numpy()
             loss.backward()
             optimizer.step()
             loss_meter.update(loss.item())
             ccc_save[i] = cc_cal(pred_train[:batch_size],labels)
-            #ccc_save2[i] = cc_cal(pred_train_mu[:batch_size],mu)
+   
             print('Iter: {}, running avg elbo: {:.4f}'.format(itr, -loss_meter.avg))
 
 
@@ -544,7 +479,7 @@ if __name__ == '__main__':
         #print('Average Train CCC is of ' + str(itr) + ' is ' + str(ccc_train_ave[itr]))
 
         scheduler.step()
-       # scheduler2.step()
+
         
         plt.plot(pred_train.detach().numpy(), label = 'pred_sd')
         plt.plot(labels.detach().numpy(),label = 'gt sd')
@@ -557,7 +492,7 @@ if __name__ == '__main__':
         plt.show()
 
         with torch.no_grad(): ### after each epoch training
-            ######################## Test may be able to be changed
+            ######################## Test phase
             ccc_save_test = np.zeros((len(test_loader) + 1,))
             for i, data in enumerate(test_loader):# for each utterence
                 te_fea, te_lab, MUt = data
@@ -577,31 +512,26 @@ if __name__ == '__main__':
                 te_lab1_mu = te_lab1_mu.permute(1, 0, 2)
                 tt_mu = torch.linspace(0, (te_fea.shape[0] - 1) * 0.04, steps=te_fea.shape[0])
                 
-                #y0_new2 = torch.atanh(2 * te_lab1[delay,:,:] - 1) 
-                #p_test = odeint(func, y0_new2, tt, te_fea, args.rtol, args.atol) #delay compensation
-                #y0_pri = pri.forward(te_fea[0,:,:]).float().to(device)
+      
+                #y0_pri = pri.forward(te_fea[0,:,:]).float().to(device) #Uncomment for predicted initial value
+                
+                ###### Standard deviation (SD) prediction results saved in p_test
                 y0_pri = te_lab1[delay,:,:]
                 p_test = odeint(func, y0_pri, tt, te_fea, args.rtol, args.atol) #delay compensation
-                # p_test = odeint(func, te_lab1, tt, te_fea, args.rtol, args.atol)
-                #p_test = 0.5 * torch.tanh(p_test) + 0.5
                 p_test = args.scale2*torch.sigmoid(p_test)
                 
+                ###### Mean prediction results saved in p_test_mu
                 y0_pri_mu = te_lab1_mu[delay,:,:]
-                p_test_mu = odeint(func2, y0_pri_mu, tt_mu, te_fea, args.rtol, args.atol) #delay compensation
-                # p_test = odeint(func, te_lab1, tt, te_fea, args.rtol, args.atol)
-                #p_test = 0.5 * torch.tanh(p_test) + 0.5
-                
+                p_test_mu = odeint(func2, y0_pri_mu, tt_mu, te_fea, args.rtol, args.atol) #delay compensation           
                 p_test_mu = gmma*torch.sigmoid(p_test_mu)
                 
                 ################## post processing for delay per utterence ##########
                 p_test = p_test[:ts_size2,:,:]
                 p_temp = p_test[0,:,:].repeat(int(delay),1,1)
-                # p_test = torch.cat((p_temp,p_test[:-int(delay) + 1,:,:]),0)
                 p_test = torch.cat((p_temp,p_test[:-int(delay),:,:]),0)
                 
                 p_test_mu = p_test_mu[:ts_size2,:,:]
                 p_temp_mu = p_test_mu[0,:,:].repeat(int(delay),1,1)
-                # p_test = torch.cat((p_temp,p_test[:-int(delay) + 1,:,:]),0)
                 p_test_mu = torch.cat((p_temp_mu,p_test_mu[:-int(delay),:,:]),0)
                 
                 #remove nan
@@ -612,7 +542,7 @@ if __name__ == '__main__':
                     
                 ccc_save_test[i] = cc_cal(p_test,te_lab1)
                 
-                #################################################################
+                ################################################################# Cat all predictions from utterances
                 if i == 0:
                     p_ts = torch.reshape(torch.t(p_test[:ts_size2,:,0]),(-1,))
                     p_ts_mu = torch.reshape(torch.t(p_test_mu[:ts_size2,:,0]),(-1,))
@@ -640,11 +570,7 @@ if __name__ == '__main__':
                 io.savemat(
                     savepath + 'MU_p_tsfd_' + name[dim] +'_delay' + str(args.delay) +'_alpha' + str(args.scale) +'_' + str(gmma) +'_loss'+str(eta) +'.mat',
                     {"p_test": p_ts_mu.cpu().detach().numpy()})
-                #io.savemat(savepath + '/p_tsfd_' + '_' + name[dim] + '.mat', {"p_test": p_ts.cpu().detach().numpy()})
-                # io.savemat(savepath + 'SD_seed'+ str(args.seed) + '_alpha' + str(args.scale) + '_CCC_tests_' + '_' + name[dim] + '.mat',{"ccc_test": ccc_test})
-                # io.savemat(savepath + 'SD_seed'+ str(args.seed) + '_alpha' + str(args.scale) +'_CCC_trains_' + '_' + name[dim] + '.mat',{"ccc_train": ccc_train})
-                # io.savemat(savepath + 'SD_seed'+ str(args.seed) + '_alpha' + str(args.scale) + '_train_loss' + '_' + name[dim] + '.mat', {"train_loss": train_loss})
-             
+
             plt.plot(p_ts[:batch_size].detach().numpy(), label = 'test pred_sd')
             plt.plot(te_lab[:batch_size].detach().numpy(),label = 'test gt sd')
             plt.legend(loc="lower right")
@@ -654,11 +580,7 @@ if __name__ == '__main__':
             plt.plot(MUt[:batch_size].detach().numpy(),label = 'test gt MU')
             plt.legend(loc="lower right")
             plt.show()
-                  #  else:
-                #curr_step += 1
-                # if curr_step == args.PATIENCE:
-                    # print('Early Sopp!')
-                    # break
+
     io.savemat(savepath + 'SD_seed'+ str(args.seed) + '_alpha' + str(args.scale) +'_' + str(args.scale2) + '_CCC_tests_' + '_' + name[dim] +'_delay' + str(args.delay)+'_loss'+str(eta) + '.mat',{"ccc_test": ccc_test})
     io.savemat(savepath + 'SD_seed'+ str(args.seed) + '_alpha' + str(args.scale) +'_' + str(args.scale2) +'_CCC_trains_' + '_' + name[dim] +'_delay' + str(args.delay) + '_loss'+str(eta) + '.mat',{"ccc_train": ccc_train})
     io.savemat(savepath + 'SD_seed'+ str(args.seed) + '_alpha' + str(args.scale) +'_' + str(args.scale2) + '_train_loss' + '_' + name[dim] +'_delay' + str(args.delay) + '_loss'+str(eta) + '.mat', {"train_loss": train_loss})
@@ -666,29 +588,10 @@ if __name__ == '__main__':
     torch.save(pri.state_dict(), savepath + 'pri' +'SD_seed'+ str(args.seed) + '_alpha' + str(args.scale) +'_' + str(args.scale2) + '_' + name[dim] +'_delay' + str(args.delay)+'_loss'+str(eta) + '.pth')
     torch.save(func.state_dict(), savepath + 'func' +'SD_seed'+ str(args.seed) + '_alpha' + str(args.scale) +'_' + str(args.scale2) + '_' + name[dim] +'_delay' + str(args.delay)+'_loss'+str(eta) + '.pth')
 
-  #  io.savemat(
-   #     savepath + 'MU_p_tsfd_' + name[dim] +'_delay' + str(args.delay) +'_alpha' + str(args.scale) +'_' + str(0.8) + '.mat',
-    #    {"p_test": p_ts_mu.cpu().detach().numpy()})
     io.savemat(savepath + 'MU_seed'+ str(args.seed) + '_alpha' + str(args.scale) +'_' + str(gmma) + '_CCC_tests_' + '_' + name[dim] +'_delay' + str(args.delay) + '_loss'+str(eta) +'.mat',{"ccc_test": ccc_test2})
     io.savemat(savepath + 'Mu_seed'+ str(args.seed) + '_alpha' + str(args.scale) +'_' + str(gmma) +'_CCC_trains_' + '_' + name[dim] +'_delay' + str(args.delay) + '_loss'+str(eta) +'.mat',{"ccc_train": ccc_train2})
 
-    # io.savemat(savepath + 'seed'+ str(args.seed) + '/alpha' + str(args.scale) + '/CCC_tests_' + '_' + name[dim] + '.mat',{"ccc_test": ccc_test})
-    # io.savemat(savepath + 'seed'+ str(args.seed) + '/alpha' + str(args.scale) +'/CCC_trains_' + '_' + name[dim] + '.mat',{"ccc_train": ccc_train})
-    # io.savemat(savepath + 'seed'+ str(args.seed) + '/alpha' + str(args.scale) + '/train_loss' + '_' + name[dim] + '.mat', {"train_loss": train_loss})
 
-  #  io.savemat(path + '/CCC_tests_' + '_' + name[dim] + '.mat',{"ccc_test": ccc_test})
-  #  io.savemat(path +'/CCC_trains_' + '_' + name[dim] + '.mat',{"ccc_train": ccc_train})
-  #  io.savemat(path + '/train_loss' + '_' + name[dim] + '.mat', {"train_loss": train_loss})
-  #  io.savemat(path + '/CCC_tests_ave_' + '_' + name[dim] + '.mat',{"ccc_test_ave": ccc_test_ave})
-  #  io.savemat(path +'/CCC_trains_ave_' + '_' + name[dim] + '.mat',{"ccc_train_ave": ccc_train_ave})
-
-
-
-    # io.savemat(savepath + args.savedir +'/CCC_tests_' + str(args.scale) + name[dim] + features[ftype] + '.mat',{"ccc_test": ccc_test})
-    # io.savemat(savepath + args.savedir + '/CCC_trains_' + str(args.scale) + name[dim] + features[ftype] + '.mat',{"ccc_train": ccc_train})
-    # io.savemat(savepath + args.savedir + '/train_loss'+ str(args.scale) + name[dim] + features[ftype] + '.mat', {"train_loss": train_loss})
-    # io.savemat(savepath + + args.savedir + 'p_tsfd_' + str(args.scale) + name[dim] + features[ftype] + '.mat',
-    #     {"p_test": p_ts.cpu().detach().numpy()})
     del train_dataset
     del test_dataset
     del train_loader

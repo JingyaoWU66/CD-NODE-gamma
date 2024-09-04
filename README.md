@@ -1,5 +1,6 @@
 # CD-NODE_gamma
 Tnis is the souce code for "Dual-Constrained Dynamical Neural ODEs for Ambiguity-aware Continuous Emotion Prediction" acceted at INTERSPEECh 2024.
+https://www.isca-archive.org/interspeech_2024/wu24_interspeech.html
 
 ## Get Started
 
